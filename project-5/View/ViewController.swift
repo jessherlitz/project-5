@@ -27,7 +27,7 @@ class ViewController: UIViewController, AdventureViewDelegate {
     func displayStage(description: String, options: [String], image: String) {
         UIView.animate(withDuration: 0.2, animations: {
             self.descriptionLabel.alpha = 0
-            self.background.alpha = 0.4
+            self.background.alpha = 0.1
             self.optionsStackView.alpha = 0
         }) { _ in
             self.descriptionLabel.text = description
@@ -36,39 +36,22 @@ class ViewController: UIViewController, AdventureViewDelegate {
             self.optionsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
             
             for (index, option) in options.enumerated() {
-                let button = UIButton(type: .system)
-                button.setTitle(option, for: .normal)
-                button.titleLabel?.numberOfLines = 3
-                button.titleLabel?.lineBreakMode = .byWordWrapping
-                button.titleLabel?.textAlignment = .center
-                button.tag = index
-                button.backgroundColor = .lightGray
-                button.setTitleColor(.black, for: .normal)
-                button.layer.cornerRadius = 4
-                button.layer.masksToBounds = true
-                button.translatesAutoresizingMaskIntoConstraints = false
-                button.titleLabel?.font = UIFont.systemFont(ofSize: 12)
-                
-                self.optionsStackView.axis = .horizontal
-                self.optionsStackView.alignment = .center
-                self.optionsStackView.distribution = .fillEqually
-                self.optionsStackView.spacing = 10
-                
-                button.addTarget(self, action: #selector(self.buttonTouchDown(_:)), for: .touchDown)
-                button.addTarget(self, action: #selector(self.buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside])
-                button.addTarget(self, action: #selector(self.buttonPressed(_:)), for: .touchUpInside)
-                
+                let button = self.createOptionButton(title: option, tag: index)
                 self.optionsStackView.addArrangedSubview(button)
             }
             
+            self.optionsStackView.axis = .horizontal
+            self.optionsStackView.alignment = .center
+            self.optionsStackView.distribution = .fillEqually
+            self.optionsStackView.spacing = 10
+            
             UIView.animate(withDuration: 0.2) {
                 self.descriptionLabel.alpha = 1
-                self.background.alpha = 0.5
+                self.background.alpha = 0.1
                 self.optionsStackView.alpha = 1
             }
         }
     }
-    
     
     func displayEndOfAdventure(successMessage: String) {
         UIView.animate(withDuration: 0.2, animations: {
@@ -87,22 +70,30 @@ class ViewController: UIViewController, AdventureViewDelegate {
     
     func showButton() {
         self.optionsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        let button = createOptionButton(title: "Restart Adventure", tag: 0)
+        button.addTarget(self, action: #selector(restartAdventure), for: .touchUpInside)
+        self.optionsStackView.addArrangedSubview(button)
+    }
+    
+    private func createOptionButton(title: String, tag: Int) -> UIButton {
         let button = UIButton(type: .system)
-        button.setTitle("Restart Adventure", for: .normal)
+        button.setTitle(title, for: .normal)
         button.titleLabel?.numberOfLines = 3
         button.titleLabel?.lineBreakMode = .byWordWrapping
         button.titleLabel?.textAlignment = .center
+        button.tag = tag
         button.backgroundColor = .lightGray
         button.setTitleColor(.black, for: .normal)
         button.layer.cornerRadius = 4
         button.layer.masksToBounds = true
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(self.buttonTouchDown(_:)), for: .touchDown)
-        button.addTarget(self, action: #selector(self.buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside])
-        button.addTarget(self, action: #selector(self.buttonPressed(_:)), for: .touchUpInside)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 12)
         
-        button.addTarget(self, action: #selector(restartAdventure), for: .touchUpInside)
-        self.optionsStackView.addArrangedSubview(button)
+        button.addTarget(self, action: #selector(buttonTouchDown(_:)), for: .touchDown)
+        button.addTarget(self, action: #selector(buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside])
+        button.addTarget(self, action: #selector(buttonPressed(_:)), for: .touchUpInside)
+        
+        return button
     }
     
     @objc func restartAdventure() {
